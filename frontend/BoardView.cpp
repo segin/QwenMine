@@ -1,7 +1,6 @@
 #include "frontend/BoardView.h"
 #include <QPainter>
 #include <QMouseEvent>
-#include <QTimer>
 
 BoardView::BoardView(Game* game, QWidget *parent)
     : QWidget(parent), m_game(game), m_cellSize(25)
@@ -47,14 +46,23 @@ void BoardView::paintEvent(QPaintEvent *event)
 
 void BoardView::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton) return;
-    
-    int x = (event->pos().x() - 1) / m_cellSize;
-    int y = (event->pos().y() - 1) / m_cellSize;
-    
-    if (x >= 0 && x < m_game->board().width() && y >= 0 && y < m_game->board().height()) {
-        m_game->revealCell(x, y);
-        update();
-        emit cellClicked(x, y);
+    if (event->button() == Qt::LeftButton) {
+        int x = (event->pos().x() - 1) / m_cellSize;
+        int y = (event->pos().y() - 1) / m_cellSize;
+        
+        if (x >= 0 && x < m_game->board().width() && y >= 0 && y < m_game->board().height()) {
+            m_game->revealCell(x, y);
+            update();
+            emit cellClicked(x, y);
+        }
+    } else if (event->button() == Qt::RightButton) {
+        int x = (event->pos().x() - 1) / m_cellSize;
+        int y = (event->pos().y() - 1) / m_cellSize;
+        
+        if (x >= 0 && x < m_game->board().width() && y >= 0 && y < m_game->board().height()) {
+            m_game->toggleFlag(x, y);
+            update();
+            emit cellClicked(x, y);
+        }
     }
 }
