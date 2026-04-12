@@ -1,0 +1,12 @@
+*.o
+build/*
+!build/CMakeFiles
+*.cmake
+CMakeFiles
+CMakeCache.txt
+*.qrc
+*.moc
+*.rc
+cmake_install.cmake
+Makefile
+test_debug
