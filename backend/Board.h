@@ -3,8 +3,7 @@
 
 #include <vector>
 #include <random>
-
-class Cell;
+#include "backend/Cell.h"
 
 class Board
 {
@@ -21,6 +20,7 @@ private:
     int m_height;
     int m_mineCount;
     std::vector<std::vector<Cell>> m_cells;
+    void calculateAdjacentMines();
 };
 
 #endif // BOARD_H

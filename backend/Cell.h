@@ -1,4 +1,5 @@
-#include "backend/Board.h"
+#ifndef CELL_H
+#define CELL_H
 
 class Cell {
 public:
@@ -9,6 +10,7 @@ public:
     void toggleFlag() { m_isFlagged = !m_isFlagged; }
     void reveal() { m_isRevealed = true; }
     void setMine(bool mine) { m_isMine = mine; }
+    void setAdjacentMines(int count) { m_adjacentMines = count; }
 
 private:
     bool m_isMine = false;
@@ -16,3 +18,5 @@ private:
     bool m_isRevealed = false;
     int m_adjacentMines = 0;
 };
+
+#endif // CELL_H

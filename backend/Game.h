@@ -1,10 +1,13 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <QObject>
 #include "backend/Board.h"
 
-class Game
+class Game : public QObject
 {
+    Q_OBJECT
+
 public:
     enum class State { Playing, Won, Lost };
     
@@ -14,6 +17,9 @@ public:
     State state() const { return m_state; }
     Board& board() { return m_board; }
     int remainingMines() const;
+    
+signals:
+    void stateChanged();
 
 private:
     Board m_board;

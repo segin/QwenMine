@@ -19,6 +19,7 @@ void Game::revealCell(int x, int y)
     
     if (cell.isMine()) {
         m_state = State::Lost;
+        emit stateChanged();
         return;
     }
     
@@ -78,6 +79,7 @@ bool Game::checkWin()
     
     if (revealed == total - m_board.mineCount()) {
         m_state = State::Won;
+        emit stateChanged();
         return true;
     }
     

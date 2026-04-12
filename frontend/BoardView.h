@@ -3,20 +3,23 @@
 
 #include <QWidget>
 #include "backend/Board.h"
+#include "backend/Game.h"
 
 class BoardView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit BoardView(Board *board, QWidget *parent = nullptr);
+    explicit BoardView(Game* game, QWidget *parent = nullptr);
+    void paintEvent(QPaintEvent *event) override;
 
-protected:
-    void mousePressEvent(QMouseEvent *event) override;
+signals:
+    void cellClicked(int x, int y);
 
 private:
-    Board *m_board;
+    Game* m_game;
     int m_cellSize;
+    void drawCell(QPainter& painter, int x, int y);
 };
 
 #endif // BOARDVIEW_H

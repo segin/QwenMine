@@ -13,7 +13,6 @@ find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 add_executable(QwenMine
     src/main.cpp
     backend/Board.cpp
-    backend/Cell.cpp
     backend/Game.cpp
     frontend/BoardView.cpp
     frontend/GameWindow.cpp
