@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "backend/Board.h"
+#include <QTimer>
 
 class Game : public QObject
 {
@@ -10,22 +11,36 @@ class Game : public QObject
 
 public:
     enum class State { Playing, Won, Lost };
-    
-    Game(int width, int height, int mineCount);
+
+    Game(int width, int height, int mineCount, QObject *parent = nullptr);
+    Game(int difficulty, QObject *parent = nullptr);
     void revealCell(int x, int y);
     void toggleFlag(int x, int y);
     State state() const { return m_state; }
     Board& board() { return m_board; }
     int remainingMines() const;
-    
-signals:
-    void stateChanged();
+    void startTimer();
+    int elapsedSeconds() const;
+    void resetTimer();
+    void revealAllMines();
 
-private:
-    Board m_board;
-    State m_state;
+    // Exposed for testing
     void floodFill(int x, int y);
     bool checkWin();
+
+signals:
+    void stateChanged();
+    void boardInitialized();
+
+private:
+    static Board createBoard(int difficulty);
+
+    State m_state;
+    Board m_board;
+    int m_elapsedSeconds;
+    QTimer *m_timer;
+    bool m_firstMove;
+    bool m_timerStarted;
 };
 
 #endif // GAME_H

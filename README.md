@@ -13,7 +13,7 @@ make
 ## Features
 
 - Classic Minesweeper gameplay
-- Flag mines with right-click (not yet implemented)
+- Flag mines with right-click
 - Flood fill for empty cells
 - Win/lose detection
 - Mine counter
