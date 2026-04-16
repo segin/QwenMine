@@ -123,6 +123,7 @@ void GameWindow::lockWindowSize()
     // Force the window to the exact size of its contents.
     // adjustSize() computes the minimum size needed for the central widget,
     // menu bar, and status bar. setFixedSize() then prevents user resizing.
+    setGeometry(rect());
     adjustSize();
     setFixedSize(size());
 }
@@ -159,9 +160,8 @@ void GameWindow::resetGame()
     m_boardView->setFixedWidth(bw);
     m_boardView->setFixedHeight(bh);
 
-    // Re-lock the window to the new content dimensions
+    // UpdateStatus must be called after lockWindowSize to show correct status
     lockWindowSize();
-
     updateStatus();
 }
 
