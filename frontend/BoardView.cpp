@@ -128,12 +128,20 @@ void BoardView::drawCell(QPainter &painter, int col, int row, bool hovered) {
 
     if (cell.isRevealed()) {
         // Revealed: light grey
-        painter.fillRect(r, QColor(220, 220, 220));
-
-        if (cell.isMine()) {
+        if (cell.isMine() && cell.isFlagged()) {
+            // Correctly flagged mine — green background
+            painter.fillRect(r, QColor(100, 255, 100));
             drawMine(painter, r);
-        } else if (cell.adjacentMines() > 0) {
-            drawNumber(painter, r, cell.adjacentMines());
+            drawFlag(painter, r);
+        } else if (cell.isMine()) {
+            // Unflagged mine — red background
+            painter.fillRect(r, QColor(255, 100, 100));
+            drawMine(painter, r);
+        } else {
+            painter.fillRect(r, QColor(220, 220, 220));
+            if (cell.adjacentMines() > 0) {
+                drawNumber(painter, r, cell.adjacentMines());
+            }
         }
     } else {
         // Unrevealed: raised 3D bevel

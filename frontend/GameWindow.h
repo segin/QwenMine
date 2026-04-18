@@ -29,6 +29,7 @@ private:
     void handleCellClick(int x, int y);
     void updateStatus();
     void onStateChanged();
+    void startGameTimer();
     void createMenuBar();
     void createStatusBar();
 
@@ -37,6 +38,7 @@ private:
     QLabel* m_mineCounter;
     QLabel* m_timerLabel;
     int m_cellSize;
+    QWidget* m_centralWidget;
 
     QActionGroup* m_difficultyGroup;
     QAction* m_actionNew;

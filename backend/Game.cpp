@@ -9,7 +9,7 @@ static void boardDimensions(int difficulty, int &width, int &height, int &mines)
     case 1: // Medium
         width = 16; height = 16; mines = 40; break;
     case 2: // Hard
-        width = 16; height = 16; mines = 66; break;
+        width = 30; height = 16; mines = 66; break;
     default:
         width = 9;  height = 9;  mines = 10; break;
     }
@@ -17,7 +17,7 @@ static void boardDimensions(int difficulty, int &width, int &height, int &mines)
 
 Game::Game(int width, int height, int mineCount, QObject *parent)
     : QObject(parent), m_state(State::Playing), m_board(width, height, mineCount),
-      m_elapsedSeconds(0), m_timerStarted(false)
+      m_elapsedSeconds(0), m_firstMove(true), m_timerStarted(false)
 {
     m_timer = new QTimer(this);
     m_timer->setInterval(1000);
@@ -29,7 +29,7 @@ Game::Game(int width, int height, int mineCount, QObject *parent)
 
 Game::Game(int difficulty, QObject *parent)
     : QObject(parent), m_state(State::Playing), m_board(createBoard(difficulty)),
-      m_elapsedSeconds(0), m_timerStarted(false)
+      m_elapsedSeconds(0), m_firstMove(true), m_timerStarted(false)
 {
     m_timer = new QTimer(this);
     m_timer->setInterval(1000);
@@ -105,6 +105,7 @@ void Game::floodFill(int x, int y)
 
             Cell& cell = m_board.cell(nx, ny);
             if (cell.isRevealed() || cell.isFlagged()) continue;
+            if (cell.isMine()) continue;
 
             cell.reveal();
             if (cell.adjacentMines() > 0) continue;
@@ -167,6 +168,4 @@ void Game::revealAllMines()
         for (int x = 0; x < m_board.width(); ++x)
             if (m_board.cell(x, y).isMine())
                 m_board.cell(x, y).reveal();
-    
-    emit stateChanged();
 }

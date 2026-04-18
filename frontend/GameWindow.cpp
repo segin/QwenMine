@@ -68,7 +68,6 @@ void GameWindow::createStatusBar()
     m_timerLabel = new QLabel("Time: 0s");
     statusBar()->addWidget(m_mineCounter);
     statusBar()->addWidget(m_timerLabel);
-    statusBar()->showMessage("Playing");
 }
 
 void GameWindow::initUI()
@@ -79,12 +78,12 @@ void GameWindow::initUI()
     // Game is parented to this window, so it's auto-deleted on close.
     m_game = new Game(0, this);
 
-    QWidget *centralWidget = new QWidget(this);
-    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+    m_centralWidget = new QWidget(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(m_centralWidget);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
-    m_boardView = new BoardView(m_game, centralWidget);
+    m_boardView = new BoardView(m_game, m_centralWidget);
     m_boardView->setFixedWidth(m_game->board().width() * m_cellSize + BORDER_PAD);
     m_boardView->setFixedHeight(m_game->board().height() * m_cellSize + BORDER_PAD);
 
@@ -102,7 +101,7 @@ void GameWindow::initUI()
     // Spacer so the board stays at the top and doesn't stretch
     mainLayout->addStretch();
 
-    setCentralWidget(centralWidget);
+    setCentralWidget(m_centralWidget);
     setWindowTitle("QwenMine");
 
     // Lock window to exact content size — no resize handles
@@ -112,9 +111,8 @@ void GameWindow::initUI()
     connect(newGameButton, &QPushButton::clicked, this, &GameWindow::resetGame);
     connect(m_boardView, &BoardView::cellClicked, this, &GameWindow::handleCellClick);
     connect(m_game, &Game::stateChanged, this, &GameWindow::onStateChanged);
+    connect(m_game, &Game::boardInitialized, this, &GameWindow::startGameTimer);
 
-    // Start timer and set initial status
-    m_game->startTimer();
     updateStatus();
 }
 
@@ -150,7 +148,6 @@ void GameWindow::resetGame()
 
     // Create new game parented to this window
     m_game = new Game(difficulty, this);
-    m_game->startTimer();
 
     // Update BoardView's internal pointer so it doesn't dangle,
     // and resize the widget to fit the new board.
@@ -160,8 +157,14 @@ void GameWindow::resetGame()
     m_boardView->setFixedWidth(bw);
     m_boardView->setFixedHeight(bh);
 
-    // UpdateStatus must be called after lockWindowSize to show correct status
-    lockWindowSize();
+    connect(m_game, &Game::stateChanged, this, &GameWindow::onStateChanged);
+
+    // Resize window to fit the new board dimensions.
+    m_centralWidget->setMinimumSize(0, 0);
+    setGeometry(rect());
+    adjustSize();
+    setFixedSize(size());
+
     updateStatus();
 }
 
@@ -184,9 +187,13 @@ void GameWindow::updateStatus()
         statusBar()->showMessage("Game Over!", 5000);
         break;
     default:
-        statusBar()->showMessage("Playing");
         break;
     }
+}
+
+void GameWindow::startGameTimer()
+{
+    m_game->startTimer();
 }
 
 GameWindow::~GameWindow()

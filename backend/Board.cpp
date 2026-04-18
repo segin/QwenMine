@@ -1,5 +1,6 @@
 #include "backend/Board.h"
 #include <algorithm>
+#include <random>
 
 Board::Board()
     : m_width(9), m_height(9), m_mineCount(10),
