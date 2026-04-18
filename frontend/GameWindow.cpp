@@ -160,8 +160,9 @@ void GameWindow::resetGame()
     connect(m_game, &Game::stateChanged, this, &GameWindow::onStateChanged);
 
     // Resize window to fit the new board dimensions.
-    m_centralWidget->setMinimumSize(0, 0);
-    setGeometry(rect());
+    // Temporarily allow the window to shrink/grow for adjustSize(),
+    // then re-lock it to the new content size.
+    setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     adjustSize();
     setFixedSize(size());
 
