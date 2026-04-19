@@ -16,6 +16,7 @@ public:
     Game(int difficulty, QObject *parent = nullptr);
     void revealCell(int x, int y);
     void toggleFlag(int x, int y);
+    void chord(int x, int y);
     State state() const { return m_state; }
     Board& board() { return m_board; }
     int remainingMines() const;
@@ -31,6 +32,7 @@ public:
 signals:
     void stateChanged();
     void boardInitialized();
+    void mineCountAdjusted(int requested, int actual);
 
 private:
     static Board createBoard(int difficulty);
@@ -41,6 +43,8 @@ private:
     QTimer *m_timer;
     bool m_firstMove;
     bool m_timerStarted;
+    int m_revealedCount;
+    int m_flagCount;
 };
 
 #endif // GAME_H

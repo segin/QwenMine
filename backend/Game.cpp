@@ -20,7 +20,8 @@ static void boardDimensions(int difficulty, int &width, int &height, int &mines)
 
 Game::Game(int width, int height, int mineCount, QObject *parent)
     : QObject(parent), m_state(State::Playing), m_board(width, height, mineCount),
-      m_elapsedSeconds(0), m_firstMove(true), m_timerStarted(false)
+      m_elapsedSeconds(0), m_firstMove(true), m_timerStarted(false),
+      m_revealedCount(0), m_flagCount(0)
 {
     m_timer = new QTimer(this);
     m_timer->setInterval(1000);
@@ -32,7 +33,8 @@ Game::Game(int width, int height, int mineCount, QObject *parent)
 
 Game::Game(int difficulty, QObject *parent)
     : QObject(parent), m_state(State::Playing), m_board(createBoard(difficulty)),
-      m_elapsedSeconds(0), m_firstMove(true), m_timerStarted(false)
+      m_elapsedSeconds(0), m_firstMove(true), m_timerStarted(false),
+      m_revealedCount(0), m_flagCount(0)
 {
     m_timer = new QTimer(this);
     m_timer->setInterval(1000);
@@ -55,6 +57,8 @@ void Game::revealCell(int x, int y)
 
     if (m_firstMove) {
         m_board.initialize(x, y);
+        if (m_board.mineCount() != m_board.actualMineCount())
+            emit mineCountAdjusted(m_board.mineCount(), m_board.actualMineCount());
         m_firstMove = false;
         emit boardInitialized();
     }
@@ -63,10 +67,12 @@ void Game::revealCell(int x, int y)
     if (cell.isRevealed() || cell.isFlagged()) return;
 
     cell.reveal();
+    ++m_revealedCount;
 
     if (cell.isMine()) {
         m_state = State::Lost;
         emit stateChanged();
+        m_timer->stop();
         return;
     }
 
@@ -85,7 +91,41 @@ void Game::toggleFlag(int x, int y)
     if (cell.isRevealed()) return;
 
     cell.toggleFlag();
+    if (cell.isFlagged())
+        ++m_flagCount;
+    else
+        --m_flagCount;
     emit stateChanged();
+}
+
+void Game::chord(int x, int y)
+{
+    if (m_state != State::Playing) return;
+
+    Cell& cell = m_board.cell(x, y);
+    if (!cell.isRevealed() || cell.adjacentMines() == 0) return;
+
+    std::vector<std::pair<int, int>> directions = {{-1,0}, {1,0}, {0,-1}, {0,1}, {-1,-1}, {-1,1}, {1,-1}, {1,1}};
+
+    int flagCount = 0;
+    for (auto &d : directions) {
+        int nx = x + d.first;
+        int ny = y + d.second;
+        if (nx < 0 || nx >= m_board.width() || ny < 0 || ny >= m_board.height()) continue;
+        if (m_board.cell(nx, ny).isFlagged()) ++flagCount;
+    }
+
+    if (flagCount == cell.adjacentMines()) {
+        for (auto &d : directions) {
+            int nx = x + d.first;
+            int ny = y + d.second;
+            if (nx < 0 || nx >= m_board.width() || ny < 0 || ny >= m_board.height()) continue;
+            Cell& neighbor = m_board.cell(nx, ny);
+            if (!neighbor.isRevealed() && !neighbor.isFlagged()) {
+                revealCell(nx, ny);
+            }
+        }
+    }
 }
 
 void Game::floodFill(int x, int y)
@@ -111,25 +151,21 @@ void Game::floodFill(int x, int y)
             if (cell.isMine()) continue;
 
             cell.reveal();
+            ++m_revealedCount;
             if (cell.adjacentMines() > 0) continue;
             queue.push({nx, ny});
         }
     }
 }
 
-bool Game::checkWin()
+  bool Game::checkWin()
 {
-    int revealed = 0;
     int total = m_board.width() * m_board.height();
 
-    for (int y = 0; y < m_board.height(); ++y)
-        for (int x = 0; x < m_board.width(); ++x) {
-            if (m_board.cell(x, y).isRevealed()) ++revealed;
-        }
-
-    if (revealed == total - m_board.mineCount()) {
+    if (m_revealedCount == total - m_board.actualMineCount()) {
         m_state = State::Won;
         emit stateChanged();
+        m_timer->stop();
         return true;
     }
 
@@ -138,12 +174,7 @@ bool Game::checkWin()
 
 int Game::remainingMines() const
 {
-    int count = 0;
-    for (int y = 0; y < m_board.height(); ++y)
-        for (int x = 0; x < m_board.width(); ++x)
-            if (m_board.cell(x, y).isFlagged()) ++count;
-
-    return m_board.mineCount() - count;
+    return m_board.actualMineCount() - m_flagCount;
 }
 
 void Game::startTimer()

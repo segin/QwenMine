@@ -149,6 +149,13 @@ void GameWindow::resetGame()
     // Create new game parented to this window
     m_game = new Game(difficulty, this);
 
+    // Re-establish signal-slot connections for the new game object
+    connect(m_game, &Game::stateChanged, this, &GameWindow::onStateChanged);
+    connect(m_game, &Game::boardInitialized, this, &GameWindow::startGameTimer);
+    connect(m_game, &Game::mineCountAdjusted, this, [this](int, int actual) {
+        m_mineCounter->setText("Mines: " + QString::number(actual));
+    });
+
     // Update BoardView's internal pointer so it doesn't dangle,
     // and resize the widget to fit the new board.
     const int bw = m_game->board().width() * m_cellSize + BORDER_PAD;

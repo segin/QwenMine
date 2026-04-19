@@ -3,13 +3,13 @@
 #include <random>
 
 Board::Board()
-    : m_width(9), m_height(9), m_mineCount(10),
+    : m_width(9), m_height(9), m_mineCount(10), m_actualMineCount(10),
       m_cells(m_height * m_width)
 {
 }
 
 Board::Board(int width, int height, int mineCount)
-    : m_width(width), m_height(height), m_mineCount(mineCount),
+    : m_width(width), m_height(height), m_mineCount(mineCount), m_actualMineCount(mineCount),
       m_cells(m_height * m_width)
 {
 }
@@ -21,8 +21,25 @@ void Board::initialize()
 
 void Board::initialize(int safeX, int safeY)
 {
+    // On first left-click (safeX >= 0), preserve flags placed before first click.
+    // Collect existing flags before clearing the board.
+    std::vector<Cell> savedCells;
+    if (safeX >= 0 && safeY >= 0) {
+        savedCells = m_cells;
+    }
+
     // Clear all cell states with fresh default cells
     m_cells.assign(m_height * m_width, Cell{});
+
+    // Restore flags placed before first click.
+    if (!savedCells.empty()) {
+        for (int y = 0; y < m_height; ++y)
+            for (int x = 0; x < m_width; ++x) {
+                if (savedCells[index(x, y)].isFlagged()) {
+                    m_cells[index(x, y)].toggleFlag();
+                }
+            }
+    }
 
     // Collect safe positions (clicked cell + 3x3 neighborhood)
     // Classic Minesweeper guarantees the entire 3x3 around first click is safe
@@ -53,8 +70,8 @@ void Board::initialize(int safeX, int safeY)
 
     std::shuffle(positions.begin(), positions.end(), gen);
 
-    int minesToPlace = std::min(m_mineCount, static_cast<int>(positions.size()));
-    for (int i = 0; i < minesToPlace; ++i)
+    m_actualMineCount = std::min(m_mineCount, static_cast<int>(positions.size()));
+    for (int i = 0; i < m_actualMineCount; ++i)
         m_cells[positions[i]].setMine(true);
 
     calculateAdjacentMines();

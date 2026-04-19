@@ -17,6 +17,7 @@ public:
     int width() const { return m_width; }
     int height() const { return m_height; }
     int mineCount() const { return m_mineCount; }
+    int actualMineCount() const { return m_actualMineCount; }
     void calculateAdjacentMines();
 
 private:
@@ -25,6 +26,7 @@ private:
     int m_width;
     int m_height;
     int m_mineCount;
+    int m_actualMineCount;
     std::vector<Cell> m_cells; // flat: row-major, index = y * m_width + x
 };
 
