@@ -169,6 +169,5 @@ void Game::revealAllMines()
 {
     for (int y = 0; y < m_board.height(); ++y)
         for (int x = 0; x < m_board.width(); ++x)
-            if (m_board.cell(x, y).isMine())
-                m_board.cell(x, y).reveal();
+            m_board.cell(x, y).reveal();
 }
