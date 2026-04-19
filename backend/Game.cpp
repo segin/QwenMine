@@ -202,3 +202,15 @@ void Game::revealAllMines()
         for (int x = 0; x < m_board.width(); ++x)
             m_board.cell(x, y).reveal();
 }
+
+void Game::autoFlagRemainingMines()
+{
+    for (int y = 0; y < m_board.height(); ++y)
+        for (int x = 0; x < m_board.width(); ++x) {
+            Cell& cell = m_board.cell(x, y);
+            if (cell.isMine() && !cell.isFlagged() && !cell.isRevealed()) {
+                cell.toggleFlag();
+                ++m_flagCount;
+            }
+        }
+}

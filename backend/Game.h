@@ -24,6 +24,7 @@ public:
     int elapsedSeconds() const;
     void resetTimer();
     void revealAllMines();
+    void autoFlagRemainingMines();
 
     // Exposed for testing
     void floodFill(int x, int y);

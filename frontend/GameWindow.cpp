@@ -118,9 +118,9 @@ void GameWindow::initUI()
 
 void GameWindow::lockWindowSize()
 {
-    // Force the window to the exact size of its contents.
-    // adjustSize() computes the minimum size needed for the central widget,
-    // menu bar, and status bar. setFixedSize() then prevents user resizing.
+    // Unlock constraints so adjustSize() can actually change the window.
+    setMinimumSize(0, 0);
+    setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     adjustSize();
     setFixedSize(size());
 }
@@ -129,11 +129,12 @@ void GameWindow::onStateChanged()
 {
     updateStatus();
 
-    // On game over reveal all mines
-    if (m_game->state() == Game::State::Lost || m_game->state() == Game::State::Won) {
+    if (m_game->state() == Game::State::Lost) {
         m_game->revealAllMines();
-        m_boardView->update();
+    } else if (m_game->state() == Game::State::Won) {
+        m_game->autoFlagRemainingMines();
     }
+    m_boardView->update();
 }
 
 void GameWindow::resetGame()
