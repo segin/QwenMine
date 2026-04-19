@@ -22,9 +22,20 @@ void BoardView::setGame(Game *game)
     m_hoverRow = -1;
     setMinimumSize(boardPixelWidth() + 2 * GRID_LINE,
                    boardPixelHeight() + 2 * GRID_LINE);
-    update();
+   update();
 }
 
+// ============================================================
+// Size hint
+// ============================================================
+
+QSize BoardView::sizeHint() const {
+    return QSize(boardPixelWidth() + 2 * GRID_LINE,
+                 boardPixelHeight() + 2 * GRID_LINE);
+}
+
+// ============================================================
+// Mouse events
 // ============================================================
 // Grid geometry helpers
 // ============================================================

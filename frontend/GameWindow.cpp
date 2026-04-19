@@ -121,7 +121,6 @@ void GameWindow::lockWindowSize()
     // Force the window to the exact size of its contents.
     // adjustSize() computes the minimum size needed for the central widget,
     // menu bar, and status bar. setFixedSize() then prevents user resizing.
-    setGeometry(rect());
     adjustSize();
     setFixedSize(size());
 }
@@ -143,8 +142,9 @@ void GameWindow::resetGame()
     if (m_actionMedium->isChecked()) difficulty = 1;
     else if (m_actionHard->isChecked()) difficulty = 2;
 
-    // Delete old game (parented to this, but we take explicit ownership here)
-    m_game->deleteLater();
+    auto oldGame = m_game;
+    disconnect(oldGame, nullptr, this, nullptr);
+    oldGame->deleteLater();
 
     // Create new game parented to this window
     m_game = new Game(difficulty, this);
@@ -156,15 +156,12 @@ void GameWindow::resetGame()
     m_boardView->setGame(m_game);
     m_boardView->setFixedWidth(bw);
     m_boardView->setFixedHeight(bh);
-
-    connect(m_game, &Game::stateChanged, this, &GameWindow::onStateChanged);
+    m_boardView->updateGeometry();
+    m_boardView->update();
 
     // Resize window to fit the new board dimensions.
-    // Temporarily allow the window to shrink/grow for adjustSize(),
-    // then re-lock it to the new content size.
-    setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-    adjustSize();
-    setFixedSize(size());
+    m_centralWidget->layout()->activate();
+    lockWindowSize();
 
     updateStatus();
 }

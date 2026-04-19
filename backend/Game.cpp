@@ -1,8 +1,11 @@
 #include "backend/Game.h"
+#include <cassert>
 #include <queue>
 
 static void boardDimensions(int difficulty, int &width, int &height, int &mines)
 {
+    assert(difficulty >= 0 && difficulty <= 2);
+
     switch (difficulty) {
     case 0: // Easy
         width = 9;  height = 9;  mines = 10; break;

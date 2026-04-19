@@ -18,6 +18,7 @@ public:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    QSize sizeHint() const override;
 
 signals:
     void cellClicked(int x, int y);
