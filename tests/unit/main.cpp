@@ -326,6 +326,7 @@ void GameTests::testToggleFlagEmitsSignal()
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication app(argc, argv);
     int result = 0;
 
     {
