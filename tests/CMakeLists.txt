@@ -4,8 +4,8 @@ find_package(Qt6 REQUIRED COMPONENTS Core Widgets Test)
 
 add_executable(GameTests
     unit/main.cpp
-    ../../backend/Board.cpp
-    ../../backend/Game.cpp
+    ../backend/Board.cpp
+    ../backend/Game.cpp
 )
 
 target_include_directories(GameTests PRIVATE

@@ -148,6 +148,10 @@ void BoardView::drawCell(QPainter &painter, int col, int row, bool hovered) {
             // Unflagged mine — red background
             painter.fillRect(r, QColor(255, 100, 100));
             drawMine(painter, r);
+        } else if (cell.isFlagged() && cell.isWronglyFlagged()) {
+            // Wrongly flagged cell — pinkish background
+            painter.fillRect(r, QColor(255, 150, 150));
+            drawFlag(painter, r);
         } else {
             painter.fillRect(r, QColor(220, 220, 220));
             if (cell.adjacentMines() > 0) {
@@ -222,8 +226,15 @@ void BoardView::mousePressEvent(QMouseEvent *event) {
         row < 0 || row >= m_game->board().height())
         return;
 
+    const Cell &clickedCell = m_game->board().cell(col, row);
+
     if (event->button() == Qt::LeftButton) {
-        emit cellClicked(col, row);
+        if (clickedCell.isRevealed() && clickedCell.adjacentMines() > 0) {
+            m_game->chord(col, row);
+            update();
+        } else {
+            emit cellClicked(col, row);
+        }
     } else if (event->button() == Qt::RightButton) {
         m_game->toggleFlag(col, row);
         update();

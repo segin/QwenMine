@@ -55,6 +55,9 @@ void Game::revealCell(int x, int y)
 {
     if (m_state != State::Playing) return;
 
+    Cell& cell = m_board.cell(x, y);
+    if (cell.isRevealed() || cell.isFlagged()) return;
+
     if (m_firstMove) {
         m_board.initialize(x, y);
         if (m_board.mineCount() != m_board.actualMineCount())
@@ -63,7 +66,6 @@ void Game::revealCell(int x, int y)
         emit boardInitialized();
     }
 
-    Cell& cell = m_board.cell(x, y);
     if (cell.isRevealed() || cell.isFlagged()) return;
 
     cell.reveal();
@@ -199,8 +201,13 @@ void Game::resetTimer()
 void Game::revealAllMines()
 {
     for (int y = 0; y < m_board.height(); ++y)
-        for (int x = 0; x < m_board.width(); ++x)
-            m_board.cell(x, y).reveal();
+        for (int x = 0; x < m_board.width(); ++x) {
+            Cell &cell = m_board.cell(x, y);
+            if (cell.isFlagged() && !cell.isMine()) {
+                cell.setWronglyFlagged(true);
+            }
+            cell.reveal();
+        }
 }
 
 void Game::autoFlagRemainingMines()
