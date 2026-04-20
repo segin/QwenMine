@@ -112,6 +112,9 @@ void GameWindow::initUI()
     connect(m_boardView, &BoardView::cellClicked, this, &GameWindow::handleCellClick);
     connect(m_game, &Game::stateChanged, this, &GameWindow::onStateChanged);
     connect(m_game, &Game::boardInitialized, this, &GameWindow::startGameTimer);
+    connect(m_game, &Game::mineCountAdjusted, this, [this](int, int actual) {
+        m_mineCounter->setText("Mines: " + QString::number(actual));
+    });
 
     updateStatus();
 }
@@ -133,6 +136,7 @@ void GameWindow::onStateChanged()
         m_game->revealAllMines();
     } else if (m_game->state() == Game::State::Won) {
         m_game->autoFlagRemainingMines();
+        updateStatus();
     }
     m_boardView->update();
 }

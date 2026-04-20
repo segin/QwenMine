@@ -177,7 +177,7 @@ void GameTests::testWinCondition()
     for (int y = 0; y < game.board().height(); ++y)
         for (int x = 0; x < game.board().width(); ++x)
             if (!game.board().cell(x, y).isMine())
-                game.board().cell(x, y).reveal();
+                game.revealCell(x, y);
 
     QVERIFY(game.checkWin());
     QCOMPARE(game.state(), Game::State::Won);
